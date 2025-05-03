@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Web Scraper</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-  <div class="container">
-    <h1>🕸️ Web Scraper Tool</h1>
-    <form id="scrape-form">
-      <label for="url">Enter URL to scrape:</label>
-      <input type="text" id="url" placeholder="https://example.com" required />
-      <button type="submit">Scrape</button>
-    </form>
-    <div id="result">
-      <!-- Scraped data will appear here -->
+    <div class="container">
+        <h1>Website Scraper</h1>
+        <form id="scrape-form">
+            <label for="url">Enter URL (e.g., http://quotes.toscrape.com):</label>
+            <input type="text" id="url" placeholder="http://quotes.toscrape.com" required>
+            <button type="submit">Scrape</button>
+        </form>
+        <form id="author-form">
+            <label for="author">Filter by Author:</label>
+            <input type="text" id="author" placeholder="Enter author name">
+            <button type="submit">Filter</button>
+        </form>
+        <a href="/download" download><button>Download CSV</button></a>
+        <div id="result"></div>
     </div>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

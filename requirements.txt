@@ -1,1 +1,7 @@
 flask
+requests
+beautifulsoup4
+requests==2.31.0
+beautifulsoup4==4.12.3
+Flask==3.0.3
+flask-limiter==4.0.1pip install -r requirements.txt

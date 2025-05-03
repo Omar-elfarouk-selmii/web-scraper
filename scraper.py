@@ -1,33 +1,44 @@
+import requests
 from bs4 import BeautifulSoup
+import csv
 
-# Define the scrape_quotes function
-def scrape_quotes(file_path):
+def scrape_quotes(url="http://quotes.toscrape.com"):
     """
-    Scrapes quotes and authors from a local HTML file.
-    Returns a list of dictionaries with 'author' and 'quote'.
+    Scrapes quotes from the given URL and returns a list of dictionaries.
+    Also saves the data to a CSV file.
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            soup = BeautifulSoup(file, 'html.parser')
+        # Send HTTP request
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # Raise error for bad status codes
 
+        # Parse HTML content
+        soup = BeautifulSoup(response.text, 'html.parser')
         quotes = soup.find_all('div', class_='quote')
-        data = []
 
+        # Extract data
+        quotes_data = []
         for quote in quotes:
             text = quote.find('span', class_='text').get_text(strip=True)
             author = quote.find('small', class_='author').get_text(strip=True)
-            data.append({'author': author, 'quote': text})
+            quotes_data.append({'text': text, 'author': author})
 
-        return data
+        # Save to CSV
+        with open('quotes.csv', 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['text', 'author'])
+            writer.writeheader()
+            writer.writerows(quotes_data)
 
+        return quotes_data
+
+    except requests.RequestException as e:
+        print(f"Error fetching URL: {e}")
+        return []
     except Exception as e:
-        print(f"Error during scraping: {e}")
+        print(f"Error parsing data: {e}")
         return []
 
-# Example usage
 if __name__ == "__main__":
-    file_path = r"C:\Users\agerb\OneDrive\Bureau\work\quotes.html"  # Raw string literal
-    results = scrape_quotes(file_path)
-    for item in results:
-        print(f"{item['author']}: {item['quote']}")
-
+    # Test the scraper
+    data = scrape_quotes()
+    print(data)
