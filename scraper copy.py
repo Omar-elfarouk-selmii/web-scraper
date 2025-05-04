@@ -37,18 +37,7 @@ def scrape_quotes(url="http://quotes.toscrape.com"):
     except Exception as e:
         print(f"Error parsing data: {e}")
         return []
-def scrape_any_website(url):
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Extract ALL text (very generic, but messy)
-        all_text = soup.get_text(separator=' ', strip=True)
-        return {"content": all_text}  # Return raw text
-
-    except Exception as e:
-        return {"error": str(e)}
 if __name__ == "__main__":
     # Test the scraper
     data = scrape_quotes()

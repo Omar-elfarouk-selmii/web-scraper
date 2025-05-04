@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Scraper</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Website Scraper</h1>
-        <form id="scrape-form">
+        <form action="/scrape" id="scrape-form" method="POST">
             <label for="url">Enter URL (e.g., http://quotes.toscrape.com):</label>
-            <input type="text" id="url" placeholder="http://quotes.toscrape.com" required>
+            <input type="text" id="url" name="url" placeholder="http://quotes.toscrape.com" required>
             <button type="submit">Scrape</button>
         </form>
         <form id="author-form">
             <label for="author">Filter by Author:</label>
-            <input type="text" id="author" placeholder="Enter author name">
+            <input type="text" name="author" id="author" placeholder="Enter author name">
             <button type="submit">Filter</button>
         </form>
         <a href="/download" download><button>Download CSV</button></a>

@@ -1,21 +1,30 @@
-from flask import Flask, jsonify, send_file, request
-from scraper import scrape_quotes
+from flask import Flask, jsonify, send_file, request,render_template
+from scraper import scrape_quotes,scrape_any_website
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import os
+from pprint import pprint
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 # Rate limiting for security
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 # Cache scraped data
 QUOTES_DATA = scrape_quotes()
+pprint(QUOTES_DATA)
+@app.route('/',methods=['GET'])
+def get_site():
+    return render_template("index.html")
 
-@app.route('/quotes', methods=['GET'])
+
+@app.route('/quotes', methods=['post'])
 @limiter.limit("10 per minute")
 def get_all_quotes():
     """Returns all scraped quotes as JSON."""
+    url=request.form['url']
+    QUOTES_DATA = scrape_quotes(url)
     return jsonify(QUOTES_DATA)
 
 @app.route('/quotes/<string:author>', methods=['GET'])
@@ -31,7 +40,6 @@ def get_quotes_by_author(author):
         return jsonify({"message": "No quotes found for this author."}), 404
 
 @app.route('/scrape', methods=['POST'])
-@limiter.limit("5 per minute")
 def scrape_url():
     """Scrapes a given URL and returns the data."""
     data = request.get_json()
@@ -39,14 +47,20 @@ def scrape_url():
         return jsonify({"message": "URL is required."}), 400
     
     url = data['url']
-    if not url.startswith('http://quotes.toscrape.com'):
-        return jsonify({"message": "Only quotes.toscrape.com is allowed."}), 403
-    
-    try:
+    if url=="http://quotes.toscrape.com":
         quotes = scrape_quotes(url)
         return jsonify(quotes)
-    except Exception as e:
-        return jsonify({"message": f"Scraping failed: {str(e)}"}), 500
+    else:
+        # print('"""""""""""""""')
+
+        # url=request.form.get('url')
+        # print(url)
+        # print('"""""""""""""""')
+        try:
+            quotes = scrape_any_website(url)
+            return jsonify(quotes)
+        except Exception as e:
+            return jsonify({"message": f"Scraping failed: {str(e)}"}), 500
 
 @app.route('/download', methods=['GET'])
 def download_csv():
