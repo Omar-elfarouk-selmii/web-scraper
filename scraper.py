@@ -1,6 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+from urllib.parse import urlparse
+import os
+import time
+
+def get_safe_filename(url):
+    """Generate a safe filename from URL"""
+    parsed = urlparse(url)
+    domain = parsed.netloc.replace(".", "_")
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    return f"scraped_{domain}_{timestamp}.csv"
 
 def scrape_quotes(url="http://quotes.toscrape.com"):
     """
@@ -23,33 +33,52 @@ def scrape_quotes(url="http://quotes.toscrape.com"):
             author = quote.find('small', class_='author').get_text(strip=True)
             quotes_data.append({'text': text, 'author': author})
 
+        # Generate unique filename
+        filename = get_safe_filename(url)
+        
         # Save to CSV
-        with open('quotes.csv', 'w', newline='', encoding='utf-8') as f:
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=['text', 'author'])
             writer.writeheader()
             writer.writerows(quotes_data)
 
-        return quotes_data
+        return {'data': quotes_data, 'filename': filename}
 
     except requests.RequestException as e:
         print(f"Error fetching URL: {e}")
-        return []
+        return {'error': str(e)}
     except Exception as e:
         print(f"Error parsing data: {e}")
-        return []
+        return {'error': str(e)}
+
 def scrape_any_website(url):
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # Extract ALL text (very generic, but messy)
-        all_text = soup.get_text(separator=' ', strip=True)
-        return {"content": all_text}  # Return raw text
+        # Extract all text content
+        text_content = []
+        for tag in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
+            text = tag.get_text(strip=True)
+            if text:  # Only include non-empty text
+                text_content.append({'content': text})
+
+        # Generate unique filename
+        filename = get_safe_filename(url)
+
+        # Save to CSV
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['content'])
+            writer.writeheader()
+            writer.writerows(text_content)
+
+        return {'data': text_content, 'filename': filename}
 
     except Exception as e:
-        return {"error": str(e)}
+        return {'error': str(e)}
+
 if __name__ == "__main__":
     # Test the scraper
-    data = scrape_quotes()
-    print(data)
+    result = scrape_quotes()
+    print(result)

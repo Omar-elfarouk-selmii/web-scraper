@@ -11,21 +11,17 @@ CORS(app)
 # Rate limiting for security
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
-# Cache scraped data
-QUOTES_DATA = scrape_quotes()
-pprint(QUOTES_DATA)
-
 @app.route('/', methods=['GET'])
 def get_site():
     return render_template("index.html")
 
-@app.route('/quotes', methods=['post'])
+@app.route('/quotes', methods=['POST'])
 @limiter.limit("10 per minute")
 def get_all_quotes():
     """Returns all scraped quotes as JSON."""
     url = request.form['url']
-    QUOTES_DATA = scrape_quotes(url)
-    return jsonify(QUOTES_DATA)
+    result = scrape_quotes(url)
+    return jsonify(result)
 
 @app.route('/scrape', methods=['POST'])
 def scrape_url():
@@ -36,20 +32,26 @@ def scrape_url():
     
     url = data['url']
     if url == "http://quotes.toscrape.com":
-        quotes = scrape_quotes(url)
-        return jsonify(quotes)
+        result = scrape_quotes(url)
     else:
         try:
-            quotes = scrape_any_website(url)
-            return jsonify(quotes)
+            result = scrape_any_website(url)
         except Exception as e:
             return jsonify({"message": f"Scraping failed: {str(e)}"}), 500
+    
+    if 'error' in result:
+        return jsonify({"message": f"Scraping failed: {result['error']}"}), 500
+    
+    # Store the filename in the session
+    app.config['LAST_SCRAPED_FILE'] = result.get('filename')
+    return jsonify(result)
 
 @app.route('/download', methods=['GET'])
 def download_csv():
-    """Downloads the scraped quotes as a CSV file."""
-    if os.path.exists('quotes.csv'):
-        return send_file('quotes.csv', as_attachment=True)
+    """Downloads the most recently scraped file."""
+    filename = app.config.get('LAST_SCRAPED_FILE')
+    if filename and os.path.exists(filename):
+        return send_file(filename, as_attachment=True)
     else:
         return jsonify({"message": "No data available to download."}), 404
 
