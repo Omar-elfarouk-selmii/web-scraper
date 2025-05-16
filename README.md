@@ -1,32 +1,49 @@
-# 🌐 Web Scraper
+# 🕸️ Web Scraper
 
-A lightweight Python tool to extract data from websites and export it in structured formats like CSV.
+A Python-based web scraper for collecting and exporting structured data from various websites like **quotes.toscrape.com** and **medium.com**. Built with a simple UI and flexible logic to support multiple sources.
 
-## 🚀 Features
+## 🔍 Features
 
-* Scrapes static and dynamic pages
-* Handles pagination
-* Exports data to CSV/JSON
-* Easy to configure and extend
+* Extracts quotes, authors, and tags
+* CSV export support
+* Clean UI (HTML/CSS templates)
+* Basic API setup (`api.py`)
 
-## 🔧 Setup
+## 🗂️ Project Structure
 
-```bash
-git clone https://github.com/your-username/web-scraper.git
-cd web-scraper
-pip install -r requirements.txt
+```
+📁 static/           → CSS and static files  
+📁 templates/        → HTML templates (UI)  
+📄 scraper.py        → Main scraping logic  
+📄 api.py            → REST API endpoints  
+📄 requirements.txt  → Dependencies  
+📄 *.csv             → Scraped data output  
 ```
 
 ## ▶️ Usage
 
-Update target URLs and logic in `main.py`, then run:
+1. **Install dependencies**
 
-```bash
-python main.py
-```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## ⚠️ Note
+2. **Run the app**
 
-Use responsibly. Always respect a website’s `robots.txt` and terms of service.
+   ```bash
+   python api.py
+   ```
+
+3. Visit the local server to access the UI and start scraping.
+
+## 📎 Notes
+
+* Sample output is saved in `.csv` files
+* Educational/demo purposes only — respect website terms of service
+
+## 📄 Resources
+
+* [`Project-security.pdf`](./Project-security.pdf)
+* [`Web_scrapper_2_-1.pdf`](./Web_scrapper_2_-1.pdf)
 
 
